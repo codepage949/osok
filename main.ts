@@ -58,7 +58,9 @@ app.post("/upload", async (req, res) => {
     try {
       await clientReq.respond({
         headers: new Headers({
-          "content-type": isTxt ? "text/plain" : "application/octet-stream",
+          "content-type": isTxt
+            ? "text/plain; charset=utf-8"
+            : "application/octet-stream",
           "content-length": req.headers.get("content-length")!,
           ...(isTxt) ? {} : {
             "content-disposition": `attachment; filename*=UTF-8''${

@@ -9,6 +9,17 @@ const app = opine();
 const port = Number(Deno.env.get("PORT") ?? "8000");
 const ss = new Map<string, Request | null>();
 
+if (!!Deno.env.get("DENO_ENV")) {
+  app.use((req, res, next) => {
+    const protocol = req.headers.get("X-Forwarded-Proto") || req.protocol;
+
+    if (protocol === "http") {
+      return res.redirect(`https://${req.hostname}${req.url}`);
+    }
+
+    next();
+  });
+}
 app.use("/static", serveStatic("./public"));
 app.get("/", (req, res) => {
   res.sendFile("/public/index.html", { root: "." });

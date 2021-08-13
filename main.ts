@@ -2,7 +2,7 @@ import {
   opine,
   Request,
   serveStatic,
-} from "https://deno.land/x/opine@1.6.0/mod.ts";
+} from "https://deno.land/x/opine@1.7.1/mod.ts";
 import { cryptoRandomString } from "https://deno.land/x/crypto_random_string@1.0.0/mod.ts";
 
 const app = opine();
@@ -40,17 +40,20 @@ app.post("/upload", async (req, res) => {
 
   if (ss.has(key)) {
     const clientReq = ss.get(key)!;
+    const isTxt = (req.query.isTxt !== undefined);
 
     ss.delete(key);
 
     try {
       await clientReq.respond({
         headers: new Headers({
-          "content-type": "application/octet-stream",
+          "content-type": isTxt ? "text/plain" : "application/octet-stream",
           "content-length": req.headers.get("content-length")!,
-          "content-disposition": `attachment; filename*=UTF-8''${
-            encodeURIComponent(req.query.fileName)
-          };`,
+          ...(isTxt) ? {} : {
+            "content-disposition": `attachment; filename*=UTF-8''${
+              encodeURIComponent(req.query.fileName)
+            };`,
+          },
         }),
         body: req.body,
       });

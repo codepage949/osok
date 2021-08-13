@@ -37,6 +37,7 @@ async function waitForClient() {
 }
 
 async function upload(body, name) {
+    const isTxt = typeof body === 'string';
     let resp = await(await fetch('/new-session')).json();
 
     key = resp.result;
@@ -50,7 +51,7 @@ async function upload(body, name) {
     await waitForClient();
     
     status.innerText = 'uploading...';
-    resp = await(await fetch(`/upload?key=${key}&fileName=${encodeURIComponent(name)}`, {
+    resp = await(await fetch(`/upload?key=${key}&fileName=${encodeURIComponent(name)}${(isTxt) ? '&isTxt' : ''}`, {
         method: 'post',
         body,
     })).json();

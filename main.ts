@@ -9,7 +9,7 @@ const app = opine();
 const port = Number(Deno.env.get("PORT") ?? "8000");
 const ss = new Map<string, Request | null>();
 
-if (!!Deno.env.get("DENO_ENV")) {
+if (Deno.env.get("DENO_ENV") !== undefined) {
   app.use((req, res, next) => {
     const protocol = req.headers.get("X-Forwarded-Proto") || req.protocol;
 
@@ -21,10 +21,10 @@ if (!!Deno.env.get("DENO_ENV")) {
   });
 }
 app.use("/static", serveStatic("./public"));
-app.get("/", (req, res) => {
+app.get("/", (_req, res) => {
   res.sendFile("/public/index.html", { root: "." });
 });
-app.get("/new-session", (req, res) => {
+app.get("/new-session", (_req, res) => {
   const key = (cryptoRandomString({ length: 8, type: "url-safe" }) as string)
     .toLowerCase();
 

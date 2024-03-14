@@ -1,0 +1,10 @@
+{
+  "tasks": {
+    "dev": "deno run -A --watch main.ts"
+  },
+  "imports": {
+    "opine": "https://deno.land/x/opine@1.7.1/mod.ts",
+    "cors": "https://deno.land/x/cors@v1.2.2/mod.ts",
+    "crypto_random_string": "https://deno.land/x/crypto_random_string@1.1.0/mod.ts"
+  }
+}

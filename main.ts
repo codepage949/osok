@@ -2,14 +2,15 @@ import {
   opine,
   Request,
   serveStatic,
-} from "https://deno.land/x/opine@1.7.1/mod.ts";
-import { cryptoRandomString } from "https://deno.land/x/crypto_random_string@1.0.0/mod.ts";
+} from "opine";
+import { opineCors } from "cors";
+import { cryptoRandomString } from "crypto_random_string";
 
 const app = opine();
 const port = Number(Deno.env.get("PORT") ?? "8000");
 const ss = new Map<string, Request | null>();
 
-if (Deno.env.get("DENO_ENV") !== undefined) {
+if (Deno.env.get("DENO_ENV") === "production") {
   app.use((req, res, next) => {
     const protocol = req.headers.get("X-Forwarded-Proto") || req.protocol;
 
@@ -20,13 +21,13 @@ if (Deno.env.get("DENO_ENV") !== undefined) {
     next();
   });
 }
+app.use(opineCors());
 app.use("/static", serveStatic("./public"));
 app.get("/", (_req, res) => {
   res.sendFile("/public/index.html", { root: "." });
 });
 app.get("/new-session", (_req, res) => {
-  const key = (cryptoRandomString({ length: 8, type: "url-safe" }) as string)
-    .toLowerCase();
+  const key = (cryptoRandomString({ length: 8, type: "url-safe" }) as string).toLowerCase();
 
   ss.set(key, null);
   res.json({ result: key });
@@ -62,11 +63,7 @@ app.post("/upload", async (req, res) => {
             ? "text/plain; charset=utf-8"
             : "application/octet-stream",
           "content-length": req.headers.get("content-length")!,
-          ...(isTxt) ? {} : {
-            "content-disposition": `attachment; filename*=UTF-8''${
-              encodeURIComponent(req.query.fileName)
-            };`,
-          },
+          ...(isTxt) ? {} : { "content-disposition": `attachment; filename*=UTF-8''${encodeURIComponent(req.query.fileName)};` },
         }),
         body: req.body,
       });

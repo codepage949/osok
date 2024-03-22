@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "dev": "deno run -A --watch main.ts"
+    "dev": "deno run --allow-env --allow-net --allow-read --watch main.ts"
   },
   "imports": {
     "opine": "https://deno.land/x/opine@1.7.1/mod.ts",

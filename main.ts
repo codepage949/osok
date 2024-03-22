@@ -7,7 +7,7 @@ import { opineCors } from "cors";
 import { cryptoRandomString } from "crypto_random_string";
 
 const app = opine();
-const port = Number(Deno.env.get("PORT") ?? "8000");
+const port = Number(Deno.env.get("HTTP_PORT") ?? "8000");
 const ss = new Map<string, Request | null>();
 
 if (Deno.env.get("DENO_ENV") === "production") {

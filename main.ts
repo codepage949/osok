@@ -51,7 +51,7 @@ app.get("/:key", (c) => {
     return c.text("no matching key", 404);
   }
 });
-app.post("/upload", (c) => {
+app.post("/upload", async (c) => {
   const key = c.req.query("key");
   let result = false;
 
@@ -77,10 +77,15 @@ app.post("/upload", (c) => {
           headers.set("content-disposition", `attachment; filename*=UTF-8''${encodeURIComponent(fileName)};`);
         }
 
-        resolve(new Response(c.req.raw.body, {
-          headers,
-        }));
-
+        if (c.req.raw.body) {
+          const { readable, writable } = new TransformStream();
+          resolve(new Response(readable, {
+            headers,
+          }));
+          await c.req.raw.body.pipeTo(writable);
+        } else {
+          resolve(new Response(null, { headers }));
+        }
         result = true;
       } catch (e) {
         console.log(e);

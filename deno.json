@@ -1,10 +1,10 @@
 {
   "tasks": {
-    "dev": "deno run --allow-env --allow-net --allow-read --watch main.ts"
+    "start": "deno run --allow-net --allow-read --allow-env main.ts",
+    "dev": "deno run --watch --allow-net --allow-read --allow-env main.ts"
   },
   "imports": {
-    "opine": "https://deno.land/x/opine@1.7.1/mod.ts",
-    "cors": "https://deno.land/x/cors@v1.2.2/mod.ts",
-    "crypto_random_string": "https://deno.land/x/crypto_random_string@1.1.0/mod.ts"
+    "@hono/hono": "jsr:@hono/hono@4.6.1",
+    "crypto-random-string": "npm:crypto-random-string@3.3.1"
   }
 }

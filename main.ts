@@ -1,82 +1,93 @@
-import {
-  opine,
-  Request,
-  serveStatic,
-} from "opine";
-import { opineCors } from "cors";
-import { cryptoRandomString } from "crypto_random_string";
+import { Hono } from "@hono/hono";
+import { cors } from "@hono/hono/cors";
+import { serveStatic } from "@hono/hono/deno";
+import cryptoRandomString from "crypto-random-string";
 
-const app = opine();
+const app = new Hono();
 const port = Number(Deno.env.get("HTTP_PORT") ?? "8000");
-const ss = new Map<string, Request | null>();
+const ss = new Map<string, ((res: Response) => void) | null>();
 
 if (Deno.env.get("DENO_ENV") === "production") {
-  app.use((req, res, next) => {
-    const protocol = req.headers.get("X-Forwarded-Proto") || req.protocol;
+  app.use(async (c, next) => {
+    const protocol = c.req.header("X-Forwarded-Proto") || "http";
 
     if (protocol === "http") {
-      return res.redirect(`https://${req.hostname}${req.url}`);
+      const url = new URL(c.req.url);
+      url.protocol = "https:";
+      return c.redirect(url.toString());
     }
 
-    next();
+    await next();
   });
 }
-app.use(opineCors());
-app.use("/static", serveStatic("./public"));
-app.get("/", (_req, res) => {
-  res.sendFile("/public/index.html", { root: "." });
+app.use("*", cors());
+app.use("/static/*", serveStatic({ root: "./public", rewriteRequestPath: (path) => path.replace(/^\/static/, "") }));
+app.get("/", async (c) => {
+  const html = await Deno.readTextFile("./public/index.html");
+  return c.html(html);
 });
-app.get("/new-session", (_req, res) => {
+app.get("/new-session", (c) => {
   const key = (cryptoRandomString({ length: 8, type: "url-safe" }) as string).toLowerCase();
 
   ss.set(key, null);
-  res.json({ result: key });
+  return c.json({ result: key });
 });
-app.get("/status", (req, res) => {
-  const key = req.query.key;
+app.get("/status", (c) => {
+  const key = c.req.query("key");
 
-  res.json({ result: !!ss.get(key) });
+  return c.json({ result: !!ss.get(key!) });
 });
-app.get("/:key", (req, res) => {
-  const key = req.params.key;
+app.get("/:key", (c) => {
+  const key = c.req.param("key");
 
   if (ss.has(key)) {
-    ss.set(key, req);
+    let resolve: (res: Response) => void;
+    const p = new Promise<Response>((r) => {
+      resolve = r;
+    });
+    ss.set(key, resolve!);
+    return p;
   } else {
-    res.setStatus(404).end("no matching key");
+    return c.text("no matching key", 404);
   }
 });
-app.post("/upload", async (req, res) => {
-  const key = req.query.key;
+app.post("/upload", (c) => {
+  const key = c.req.query("key");
   let result = false;
 
-  if (ss.has(key)) {
-    const clientReq = ss.get(key)!;
-    const isTxt = (req.query.isTxt !== undefined);
+  if (key && ss.has(key)) {
+    const resolve = ss.get(key);
+    const isTxt = (c.req.query("isTxt") !== undefined);
 
     ss.delete(key);
 
-    try {
-      await clientReq.respond({
-        headers: new Headers({
+    if (resolve) {
+      try {
+        const headers = new Headers({
           "content-type": isTxt
             ? "text/plain; charset=utf-8"
             : "application/octet-stream",
-          "content-length": req.headers.get("content-length")!,
-          ...(isTxt) ? {} : { "content-disposition": `attachment; filename*=UTF-8''${encodeURIComponent(req.query.fileName)};` },
-        }),
-        body: req.body,
-      });
+        });
+        
+        const cl = c.req.header("content-length");
+        if (cl) headers.set("content-length", cl);
 
-      result = true;
-    } catch (e) {
-      console.log(e);
+        if (!isTxt) {
+          const fileName = c.req.query("fileName") || "";
+          headers.set("content-disposition", `attachment; filename*=UTF-8''${encodeURIComponent(fileName)};`);
+        }
+
+        resolve(new Response(c.req.raw.body, {
+          headers,
+        }));
+
+        result = true;
+      } catch (e) {
+        console.log(e);
+      }
     }
   }
 
-  res.json({ result });
+  return c.json({ result });
 });
-app.listen(
-  port,
-  () => console.log(`server has started on ${port}`),
-);
+Deno.serve({ port }, app.fetch);

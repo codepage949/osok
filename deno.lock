@@ -1,5 +1,25 @@
 {
-  "version": "3",
+  "version": "5",
+  "specifiers": {
+    "jsr:@hono/hono@4.6.1": "4.6.1",
+    "npm:crypto-random-string@3.3.1": "3.3.1"
+  },
+  "jsr": {
+    "@hono/hono@4.6.1": {
+      "integrity": "993704e3a2fa8e965c2fa46c57fc038bd277e781a982d3bf0fb278f6671b195f"
+    }
+  },
+  "npm": {
+    "crypto-random-string@3.3.1": {
+      "integrity": "sha512-5j88ECEn6h17UePrLi6pn1JcLtAiANa3KExyr9y9Z5vo2mv56Gh3I4Aja/B9P9uyMwyxNHAHWv+nE72f30T5Dg==",
+      "dependencies": [
+        "type-fest"
+      ]
+    },
+    "type-fest@0.8.1": {
+      "integrity": "sha512-4dbzIzqvjtgiM5rw1k5rEHtBANKmdudhGyBEajN01fEyhaAIhsoKNy6y7+IN93IfpFtwY9iqi7kD+xwKhQsNJA=="
+    }
+  },
   "redirects": {
     "https://deno.land/x/content_type/mod.ts": "https://deno.land/x/content_type@1.0.1/mod.ts",
     "https://deno.land/x/media_typer/mod.ts": "https://deno.land/x/media_typer@1.0.1/mod.ts",
@@ -245,5 +265,11 @@
     "https://deno.land/x/type_is@1.0.1/mod.ts": "3e471cf55f7ca9ec137ddb5feacb0d33b26e6b5b61bf7b2e2a4337b6939b8fd8",
     "https://deno.land/x/vary@1.0.0/mod.ts": "e7c452694b21336419f16e0891f8ea503adaafc7bde956fb29e1a86f450a68e6",
     "https://raw.githubusercontent.com/jshttp/mime-db/v1.52.0/db.json": "85c8e1ba609079947c8df83c092900ab0226e1d7b60e5e7105fb7dd701833263"
+  },
+  "workspace": {
+    "dependencies": [
+      "jsr:@hono/hono@4.6.1",
+      "npm:crypto-random-string@3.3.1"
+    ]
   }
 }

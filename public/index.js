@@ -13,7 +13,7 @@ function handleFileClick() {
 }
 
 function handleTextClick() {
-    const txt = prompt('input text');
+    const txt = document.querySelector('textarea').value;
 
     if (!!txt) {
         upload(txt);

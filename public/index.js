@@ -1077,6 +1077,9 @@ function uploadWithProgress(url, body, onProgress) {
     xhr.onerror = () => {
       reject(new Error("upload request failed"));
     };
+    xhr.onabort = () => {
+      reject(new Error("upload request aborted"));
+    };
     xhr.onload = () => {
       let fallback = null;
       try {
@@ -1132,12 +1135,18 @@ async function upload(body, name) {
         uploadFill.setProgress(fraction);
       },
     );
+  } catch (_error) {
+    uploadResp = { result: false };
   } finally {
     await uploadFill.complete();
   }
 
   if (!uploadResp.result) {
-    setStatus('<span class="status-err">❌ 오류가 발생했습니다</span>');
+    setStatus(
+      '<span class="status-err">❌ 연결이 끊겼거나 업로드에 실패했습니다</span>',
+    );
+    msg.innerHTML = "";
+    fileList.innerHTML = "";
   } else {
     setStatus('<span class="status-ok">✅ 전송 완료!</span>');
     msg.innerHTML = "";

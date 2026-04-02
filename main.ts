@@ -21,13 +21,20 @@ if (Deno.env.get("DENO_ENV") === "production") {
   });
 }
 app.use("*", cors());
-app.use("/static/*", serveStatic({ root: "./public", rewriteRequestPath: (path) => path.replace(/^\/static/, "") }));
+app.use(
+  "/static/*",
+  serveStatic({
+    root: "./public",
+    rewriteRequestPath: (path) => path.replace(/^\/static/, ""),
+  }),
+);
 app.get("/", async (c) => {
   const html = await Deno.readTextFile("./public/index.html");
   return c.html(html);
 });
 app.get("/new-session", (c) => {
-  const key = (cryptoRandomString({ length: 8, type: "url-safe" }) as string).toLowerCase();
+  const key = (cryptoRandomString({ length: 8, type: "url-safe" }) as string)
+    .toLowerCase();
 
   ss.set(key, null);
   return c.json({ result: key });
@@ -46,6 +53,11 @@ app.get("/:key", (c) => {
       resolve = r;
     });
     ss.set(key, resolve!);
+    c.req.raw.signal.addEventListener("abort", () => {
+      if (ss.get(key) === resolve) {
+        ss.set(key, null);
+      }
+    }, { once: true });
     return p;
   } else {
     return c.text("no matching key", 404);
@@ -57,7 +69,7 @@ app.post("/upload", async (c) => {
 
   if (key && ss.has(key)) {
     const resolve = ss.get(key);
-    const isTxt = (c.req.query("isTxt") !== undefined);
+    const isTxt = c.req.query("isTxt") !== undefined;
 
     ss.delete(key);
 
@@ -68,20 +80,25 @@ app.post("/upload", async (c) => {
             ? "text/plain; charset=utf-8"
             : "application/octet-stream",
         });
-        
+
         const cl = c.req.header("content-length");
         if (cl) headers.set("content-length", cl);
 
         if (!isTxt) {
           const fileName = c.req.query("fileName") || "";
-          headers.set("content-disposition", `attachment; filename*=UTF-8''${encodeURIComponent(fileName)};`);
+          headers.set(
+            "content-disposition",
+            `attachment; filename*=UTF-8''${encodeURIComponent(fileName)};`,
+          );
         }
 
         if (c.req.raw.body) {
           const { readable, writable } = new TransformStream();
-          resolve(new Response(readable, {
-            headers,
-          }));
+          resolve(
+            new Response(readable, {
+              headers,
+            }),
+          );
           await c.req.raw.body.pipeTo(writable);
         } else {
           resolve(new Response(null, { headers }));

@@ -24,9 +24,9 @@ let key;
     particlesScale: 0.59,
     ringDisplacement: 0.53,
     density: 230,
-    color1: "#2c64ed",
-    color2: "#f84242",
-    color3: "#ffcf03",
+    color1: "#7a90ff",
+    color2: "#44d1ff",
+    color3: "#ffd36b",
     size: 256,
   };
 
@@ -277,7 +277,7 @@ let key;
     stencil: false,
     precision: "highp",
   });
-  renderer.setClearColor(0xffffff, 0);
+  renderer.setClearColor(0x060816, 0);
   renderer.autoClear = false;
 
   const clock = new THREE.Clock(false);

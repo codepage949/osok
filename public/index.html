@@ -14,16 +14,16 @@
       }
 
       :root {
-        --bg: #f6f8fc;
-        --surface: rgba(255, 255, 255, 0.72);
-        --surface-strong: rgba(255, 255, 255, 0.9);
-        --outline: rgba(40, 46, 78, 0.1);
-        --text: #20243a;
-        --text-soft: rgba(32, 36, 58, 0.62);
-        --blue: #3279f9;
-        --red: #fc413d;
-        --green: #00b95c;
-        --yellow: #fbbc04;
+        --bg: #060816;
+        --surface: rgba(14, 18, 37, 0.68);
+        --surface-strong: rgba(22, 28, 53, 0.86);
+        --outline: rgba(139, 162, 255, 0.18);
+        --text: #edf2ff;
+        --text-soft: rgba(221, 229, 255, 0.7);
+        --blue: #6b8cff;
+        --red: #ff6485;
+        --green: #47d7b0;
+        --yellow: #ffd36b;
       }
 
       body {
@@ -33,7 +33,18 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        background: #fff;
+        background:
+          radial-gradient(
+            circle at top right,
+            rgba(73, 92, 196, 0.22),
+            transparent 28%
+          ),
+          radial-gradient(
+          circle at 20% 20%,
+          rgba(54, 133, 255, 0.14),
+          transparent 30%
+        ),
+          linear-gradient(180deg, #090c1d 0%, #060816 52%, #04050d 100%);
         overflow: hidden;
         position: relative;
         color: var(--text);
@@ -66,8 +77,9 @@
         padding: 2.5rem;
         border-radius: 24px;
         box-shadow:
-          0 28px 70px rgba(66, 81, 123, 0.14),
-          inset 0 1px 0 rgba(255, 255, 255, 0.75);
+          0 28px 70px rgba(0, 0, 0, 0.42),
+          0 0 0 1px rgba(130, 151, 255, 0.08),
+          inset 0 1px 0 rgba(255, 255, 255, 0.08);
         width: 90%;
         max-width: 480px;
         display: flex;
@@ -81,7 +93,7 @@
         color: var(--text);
         letter-spacing: -0.5px;
         text-align: center;
-        text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+        text-shadow: 0 0 24px rgba(133, 154, 255, 0.14);
       }
 
       .title span {
@@ -99,13 +111,13 @@
 
       /* 드롭존 */
       .drop-zone {
-        border: 2px dashed rgba(50, 121, 249, 0.22);
+        border: 2px dashed rgba(130, 151, 255, 0.24);
         border-radius: 16px;
         padding: 2rem 1.5rem;
         text-align: center;
         cursor: pointer;
         transition: all 0.3s ease;
-        background: rgba(255, 255, 255, 0.46);
+        background: rgba(255, 255, 255, 0.05);
         color: var(--text-soft);
         display: flex;
         flex-direction: column;
@@ -114,14 +126,14 @@
       }
 
       .drop-zone:hover {
-        border-color: rgba(50, 121, 249, 0.4);
-        background: rgba(255, 255, 255, 0.76);
+        border-color: rgba(130, 151, 255, 0.52);
+        background: rgba(255, 255, 255, 0.08);
       }
 
       .drop-zone.dragging {
-        border-color: rgba(251, 188, 4, 0.9);
-        background: rgba(255, 255, 255, 0.8);
-        box-shadow: 0 0 30px rgba(251, 188, 4, 0.2);
+        border-color: rgba(255, 211, 107, 0.9);
+        background: rgba(255, 211, 107, 0.08);
+        box-shadow: 0 0 30px rgba(255, 211, 107, 0.16);
         transform: scale(1.02);
       }
 
@@ -145,7 +157,7 @@
       }
 
       .file-item {
-        background: rgba(255, 255, 255, 0.62);
+        background: rgba(255, 255, 255, 0.08);
         border-radius: 8px;
         padding: 0.5rem 0.8rem;
         font-size: 0.85rem;
@@ -154,7 +166,7 @@
         align-items: center;
         gap: 0.5rem;
         animation: slideIn 0.2s ease;
-        border: 1px solid rgba(40, 46, 78, 0.06);
+        border: 1px solid rgba(139, 162, 255, 0.12);
       }
 
       @keyframes slideIn {
@@ -201,7 +213,7 @@
         font-weight: 600;
         text-decoration: none;
         transition: all 0.2s ease;
-        box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+        box-shadow: 0 10px 30px rgba(71, 114, 255, 0.26);
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -210,7 +222,7 @@
 
       .btn:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+        box-shadow: 0 12px 34px rgba(71, 114, 255, 0.34);
       }
 
       .btn:active {
@@ -219,30 +231,30 @@
 
       .btn-text {
         background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3);
+        box-shadow: 0 10px 30px rgba(255, 100, 133, 0.24);
       }
 
       .btn-text:hover {
-        box-shadow: 0 6px 20px rgba(240, 147, 251, 0.4);
+        box-shadow: 0 12px 34px rgba(255, 100, 133, 0.3);
       }
 
       .btn-upload {
         background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-        box-shadow: 0 4px 15px rgba(67, 233, 123, 0.3);
+        box-shadow: 0 10px 30px rgba(71, 215, 176, 0.22);
       }
 
       .btn-upload:hover {
-        box-shadow: 0 6px 20px rgba(67, 233, 123, 0.4);
+        box-shadow: 0 12px 34px rgba(71, 215, 176, 0.28);
       }
 
       textarea {
         width: 100%;
         height: 90px;
         padding: 0.75rem 1rem;
-        border: 1px solid rgba(40, 46, 78, 0.12);
+        border: 1px solid rgba(139, 162, 255, 0.16);
         border-radius: 12px;
         resize: vertical;
-        background: rgba(255, 255, 255, 0.66);
+        background: rgba(255, 255, 255, 0.06);
         color: var(--text);
         font-family: inherit;
         font-size: 0.9rem;
@@ -251,13 +263,13 @@
       }
 
       textarea::placeholder {
-        color: rgba(32, 36, 58, 0.38);
+        color: rgba(221, 229, 255, 0.34);
       }
 
       textarea:focus {
         outline: none;
-        border-color: rgba(50, 121, 249, 0.44);
-        background: rgba(255, 255, 255, 0.84);
+        border-color: rgba(130, 151, 255, 0.46);
+        background: rgba(255, 255, 255, 0.1);
       }
 
       textarea.visible {
@@ -278,7 +290,7 @@
         font-weight: 900;
         letter-spacing: 0.3rem;
         color: var(--text);
-        text-shadow: 0 0 24px rgba(50, 121, 249, 0.16);
+        text-shadow: 0 0 24px rgba(107, 140, 255, 0.32);
         animation: keyPulse 1.5s ease-in-out infinite;
         cursor: pointer;
         user-select: none;
@@ -298,8 +310,8 @@
         top: -2rem;
         left: 50%;
         transform: translateX(-50%);
-        background: rgba(67, 233, 123, 0.9);
-        color: #000;
+        background: rgba(71, 215, 176, 0.92);
+        color: #04110d;
         font-size: 0.8rem;
         font-weight: 700;
         padding: 0.25rem 0.75rem;
@@ -353,8 +365,8 @@
       .spinner {
         width: 14px;
         height: 14px;
-        border: 2px solid rgba(32, 36, 58, 0.16);
-        border-top-color: var(--text);
+        border: 2px solid rgba(221, 229, 255, 0.16);
+        border-top-color: #eef3ff;
         border-radius: 50%;
         animation: spin 0.7s linear infinite;
         display: inline-block;
@@ -367,10 +379,10 @@
       }
 
       .status-ok {
-        color: #0f9d58;
+        color: #47d7b0;
       }
       .status-err {
-        color: #d93025;
+        color: #ff7a86;
       }
 
       @media (max-width: 640px) {

@@ -168,6 +168,15 @@
         background: rgba(255, 255, 255, 0.08);
       }
 
+      .drop-zone.disabled {
+        cursor: default;
+        opacity: 0.5;
+        border-color: rgba(130, 151, 255, 0.16);
+        background: rgba(255, 255, 255, 0.03);
+        box-shadow: none;
+        transform: none;
+      }
+
       .drop-zone.dragging {
         border-color: rgba(255, 211, 107, 0.9);
         background: rgba(255, 211, 107, 0.08);
@@ -297,6 +306,15 @@
         transform: translateY(0);
       }
 
+      .btn.disabled {
+        cursor: default;
+        opacity: 0.5;
+        pointer-events: none;
+        transform: none;
+        box-shadow: none;
+        filter: saturate(0.7);
+      }
+
       .btn-text {
         background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         box-shadow: 0 10px 30px rgba(255, 100, 133, 0.24);
@@ -342,6 +360,11 @@
 
       textarea.visible {
         display: block;
+      }
+
+      textarea:disabled {
+        opacity: 0.55;
+        cursor: default;
       }
 
       /* 세션 키 표시 */

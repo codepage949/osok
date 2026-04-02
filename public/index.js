@@ -5,8 +5,11 @@ const dropZone = document.getElementById("dropZone");
 const fileList = document.getElementById("fileList");
 const textInput = document.getElementById("textInput");
 const uploadFillLayer = document.getElementById("uploadFillLayer");
+const btnFile = document.getElementById("btnFile");
+const btnText = document.getElementById("btnText");
 
 let key;
+let isUploading = false;
 
 // Antigravity 배경
 // 원본 `landing-main-particles-component`의 구조를 따라
@@ -946,6 +949,7 @@ function renderFileList(files) {
 // 드래그앤드롭
 dropZone.addEventListener("dragover", (e) => {
   e.preventDefault();
+  if (isUploading) return;
   dropZone.classList.add("dragging");
 });
 
@@ -956,6 +960,7 @@ dropZone.addEventListener("dragleave", () => {
 dropZone.addEventListener("drop", (e) => {
   e.preventDefault();
   dropZone.classList.remove("dragging");
+  if (isUploading) return;
   const files = Array.from(e.dataTransfer.files);
   if (files.length > 0) {
     renderFileList(files);
@@ -964,14 +969,20 @@ dropZone.addEventListener("drop", (e) => {
 });
 
 dropZone.addEventListener("click", () => {
+  if (isUploading) return;
   uploader.click();
 });
 
-document.getElementById("btnFile").addEventListener("click", () => {
+btnFile.addEventListener("click", () => {
+  if (isUploading) return;
   uploader.click();
 });
 
 uploader.addEventListener("change", (e) => {
+  if (isUploading) {
+    uploader.value = "";
+    return;
+  }
   const files = Array.from(e.target.files);
   if (files.length > 0) {
     renderFileList(files);
@@ -980,7 +991,8 @@ uploader.addEventListener("change", (e) => {
   uploader.value = "";
 });
 
-document.getElementById("btnText").addEventListener("click", () => {
+btnText.addEventListener("click", () => {
+  if (isUploading) return;
   if (textInput.classList.contains("visible") && textInput.value.trim()) {
     upload(textInput.value.trim());
   } else {
@@ -1014,6 +1026,7 @@ function createZip(files) {
 }
 
 async function handleFilesReady(files) {
+  if (isUploading) return;
   let body, name;
 
   if (files.length === 1) {
@@ -1049,6 +1062,15 @@ function copyKey() {
 
 function setStatus(html) {
   status.innerHTML = html;
+}
+
+function setUploadLocked(locked) {
+  isUploading = locked;
+  dropZone.classList.toggle("disabled", locked);
+  btnFile.classList.toggle("disabled", locked);
+  btnText.classList.toggle("disabled", locked);
+  textInput.disabled = locked;
+  uploader.disabled = locked;
 }
 
 async function waitForClient() {
@@ -1098,8 +1120,12 @@ function uploadWithProgress(url, body, onProgress) {
 }
 
 async function upload(body, name) {
+  if (isUploading) return;
   const isTxt = typeof body === "string";
 
+  if (isTxt) {
+    fileList.innerHTML = "";
+  }
   msg.innerHTML = "";
   setStatus(
     '<span class="status-uploading"><span class="spinner"></span> 세션 생성 중...</span>',
@@ -1119,6 +1145,7 @@ async function upload(body, name) {
 
   await waitForClient();
 
+  setUploadLocked(true);
   setStatus(
     '<span class="status-uploading"><span class="spinner"></span> 업로드 중...</span>',
   );
@@ -1139,6 +1166,7 @@ async function upload(body, name) {
     uploadResp = { result: false };
   } finally {
     await uploadFill.complete();
+    setUploadLocked(false);
   }
 
   if (!uploadResp.result) {

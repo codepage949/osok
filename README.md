@@ -1,87 +1,90 @@
-# osok
+# osok (One-Shot-OK)
 
-파일이나 텍스트를 서버에 저장하지 않고, 일회성 키를 통해 HTTP(S)로 바로 전달하는 간단한 실시간 전송 도구입니다.
+서버 디스크에 흔적을 남기지 않고, 일회성 키를 통해 데이터를 실시간으로 중계하는 현대적인 파일/텍스트 전송 도구입니다.
 
-업로더가 전송을 준비하면 키가 발급되고, 수신자가 해당 키로 접속한 뒤에만 데이터가 스트리밍됩니다. 전송이 끝나면 세션은 바로 제거됩니다.
+![osok-preview](https://img.shields.io/badge/Deno-2.0+-blue?logo=deno)
+![osok-ui](https://img.shields.io/badge/UI-Glassmorphism-brightgreen)
+![osok-bg](https://img.shields.io/badge/Background-WebGL_Particles-blueviolet)
 
-## 특징
+## 🚀 주요 특징
 
-- 서버 디스크에 파일을 저장하지 않음
-- 파일과 텍스트 모두 전송 가능
-- 다운로드용 일회성 키 발급
-- 수신자가 접속한 뒤에만 업로드가 시작되는 단순한 handoff 구조
+- **Zero-Storage:** 서버 메모리나 디스크에 파일을 저장하지 않습니다. 업로더와 수신자가 연결된 순간에만 데이터가 스트리밍됩니다.
+- **Modern UX:** Three.js 기반의 Antigravity 스타일 WebGL 파티클 배경과 글래스모피즘 UI를 제공합니다.
+- **Smart Upload:**
+  - 단일 파일 및 텍스트 전송 지원
+  - 다중 파일 드래그 앤 드롭 시 브라우저에서 즉석 **ZIP 압축** 전송 (`fflate` 활용)
+  - 실제 전송 속도와 동기화되는 **물 채움(Liquid fill) 진행 애니메이션**
+- **Security:** 8자리의 URL-safe 일회성 키를 사용하여 안전하게 경로를 식별합니다.
 
-## 요구 사항
+## 🛠 기술 스택
 
-- [Deno](https://deno.com/) 2 이상
+### Backend
+- **Runtime:** [Deno](https://deno.com/)
+- **Framework:** [Hono](https://hono.dev/) (High-performance web framework)
+- **Key Generation:** `crypto-random-string`
 
-## 실행
+### Frontend
+- **Rendering:** Three.js (WebGL Particle Simulation)
+- **Compression:** fflate (High-speed browser-side ZIP)
+- **Styling:** Vanilla CSS (Glassmorphism, Liquid Animation)
+- **Communication:** XMLHttpRequest (for precise upload progress tracking)
 
-개발 서버 실행:
+## 📂 프로젝트 구조
 
+```text
+.
+├── main.ts             # Hono 서버: 세션 관리 및 데이터 스트리밍(Relay) 로직
+├── public/
+│   ├── index.html      # UI 레이아웃 및 CSS 스타일 (Glassmorphism)
+│   └── index.js        # 프론트엔드 로직: WebGL 배경, ZIP 압축, 업로드 컨트롤러
+├── deno.json           # Deno 설정 및 의존성 정의
+└── docs/changes/       # 기능별 변경 이력 관리
+```
+
+## ⚙️ 실행 방법
+
+### 요구 사항
+- Deno 2.0 이상
+
+### 개발 서버 실행
 ```bash
 deno task dev
 ```
 
-일반 실행:
-
+### 일반 실행
 ```bash
 deno task start
 ```
 
-기본 포트는 `8000`이며, `HTTP_PORT` 환경 변수로 변경할 수 있습니다.
-
-```bash
-HTTP_PORT=3000 deno task start
-```
-
-## 사용 방법
-
-개발 환경 기준 예시는 다음과 같습니다.
-
-1. `http://127.0.0.1:8000` 에 접속합니다.
-2. `File` 또는 `Text` 버튼으로 전송할 내용을 선택합니다.
-3. 서버가 8자리 다운로드 키를 발급합니다.
-4. 수신자가 `http://127.0.0.1:8000/{key}` 로 접속합니다.
-5. 수신자 접속이 확인되면 업로드가 시작되고, 전송이 완료되면 세션이 종료됩니다.
-
-텍스트를 전송하면 브라우저에서 평문으로 응답하고, 파일을 전송하면 첨부 파일 다운로드로 처리됩니다.
-
-## 동작 방식
-
-`osok`은 메모리에 전송 대기 세션만 유지합니다.
-
-1. `/new-session` 으로 키를 생성합니다.
-2. 수신자는 `/{key}` 로 접속해 응답 스트림을 기다립니다.
-3. 업로더는 `/status?key=...` 로 수신자 접속 여부를 확인합니다.
-4. 수신자가 준비되면 `/upload?key=...` 로 실제 데이터를 전송합니다.
-5. 서버는 업로드 바디를 그대로 수신자에게 스트리밍하고 세션을 삭제합니다.
-
-즉, 서버는 중계자 역할만 수행하고 파일 보관소처럼 동작하지 않습니다.
-
-## 환경 변수
-
-| 이름 | 기본값 | 설명 |
+### 환경 변수
+| 변수명 | 기본값 | 설명 |
 | --- | --- | --- |
-| `HTTP_PORT` | `8000` | 서버가 바인딩할 포트 |
-| `DENO_ENV` | - | `production` 이면 `X-Forwarded-Proto` 기준으로 HTTP 요청을 HTTPS로 리다이렉트 |
+| `HTTP_PORT` | `8000` | 서버 포트 번호 |
+| `DENO_ENV` | - | `production` 설정 시 HTTPS 강제 리다이렉트 활성화 |
 
-## 엔드포인트
+## 📖 기능 설명 및 실행 경로
 
-| 메서드 | 경로 | 설명 |
-| --- | --- | --- |
-| `GET` | `/` | 업로드 UI 반환 |
-| `GET` | `/new-session` | 새 다운로드 키 발급 |
-| `GET` | `/status?key=...` | 수신자 접속 여부 확인 |
-| `GET` | `/:key` | 수신자 다운로드 연결 |
-| `POST` | `/upload?key=...` | 파일 또는 텍스트 업로드 |
+### 1. 세션 생성 및 대기
+- 업로더가 파일을 드롭하거나 텍스트를 입력하면 `/new-session`을 통해 8자리 키를 발급받습니다.
+- 서버는 메모리(Map)에 해당 키를 등록하고 수신자의 접속을 기다립니다.
+- 프론트엔드는 `/status?key=...`를 폴링하며 수신자 준비 상태를 확인합니다.
 
-## 프로젝트 구조
+### 2. 실시간 스트리밍 전송 (Handoff)
+- 수신자가 `/{key}` 경로로 접속하면 서버는 응답 스트림(`Promise<Response>`)을 열어둔 채 유지합니다.
+- 수신자 접속이 감지되면 업로더는 `/upload?key=...`로 데이터를 `POST`합니다.
+- **핵심 로직:** 서버는 업로드되는 `Request Body`를 수신자의 `Response Body`로 즉시 파이프(`pipeTo`) 처리합니다. 데이터는 서버를 통과할 뿐 저장되지 않습니다.
 
-```text
-.
-├─ main.ts            # Hono 서버 및 세션/스트리밍 처리
-├─ public/index.html  # 업로드 화면
-├─ public/index.js    # 브라우저 전송 로직
-└─ deno.json          # Deno task 및 의존성 정의
-```
+### 3. 지능형 파일 처리
+- **단일 파일:** 원본 이름과 타입을 유지하며 전송됩니다.
+- **다중 파일:** 브라우저에서 `fflate`를 이용해 `files.zip`으로 압축 후 전송됩니다.
+- **텍스트:** `text/plain` 타입으로 즉시 스트리밍됩니다.
+
+### 4. 시각적 피드백
+- **WebGL 배경:** 마우스 움직임에 반응하는 고성능 입자 시뮬레이션이 배경에서 동작합니다.
+- **Liquid Progress:** 업로드 시작 시 카드가 잔처럼 변하며, 실제 전송 퍼센트에 따라 물이 차오릅니다. 전송 완료 시 부드럽게 가득 차며 종료됩니다.
+
+---
+
+## 📝 특이 사항
+- 본 프로젝트는 서버가 단순 중계자(Relay) 역할만 수행하므로, 업로더의 탭이 닫히면 전송이 중단됩니다.
+- 수신자가 접속하기 전까지는 실제 데이터 업로드가 시작되지 않아 대역폭을 절약합니다.

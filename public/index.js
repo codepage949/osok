@@ -1097,7 +1097,6 @@ function uploadWithProgress(url, body, onProgress) {
 async function upload(body, name) {
   const isTxt = typeof body === "string";
 
-  fileList.innerHTML = "";
   msg.innerHTML = "";
   setStatus(
     '<span class="status-uploading"><span class="spinner"></span> 세션 생성 중...</span>',
@@ -1144,6 +1143,7 @@ async function upload(body, name) {
     msg.innerHTML = "";
     setTimeout(() => {
       setStatus("");
+      fileList.innerHTML = "";
     }, 3000);
   }
 }

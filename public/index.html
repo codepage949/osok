@@ -85,6 +85,44 @@
         display: flex;
         flex-direction: column;
         gap: 1.2rem;
+        overflow: hidden;
+      }
+
+      .container > :not(.upload-fill-layer) {
+        position: relative;
+        z-index: 1;
+      }
+
+      .upload-fill-layer {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+        opacity: 0;
+        border-radius: inherit;
+        transition: opacity 0.28s ease;
+        z-index: 0;
+      }
+
+      .upload-fill-layer.active {
+        opacity: 1;
+      }
+
+      .container.upload-filling {
+        box-shadow:
+          0 28px 70px rgba(0, 0, 0, 0.46),
+          0 0 0 1px rgba(130, 151, 255, 0.12),
+          inset 0 1px 0 rgba(255, 255, 255, 0.09);
+      }
+
+      .upload-fill-liquid {
+        position: absolute;
+        inset: 0;
+        transform: translateY(108%);
+        background: rgba(108, 140, 255, 0.22);
+        will-change: transform;
+        border-top: 1px solid rgba(214, 226, 255, 0.55);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
       }
 
       .title {
@@ -410,6 +448,7 @@
     </div>
 
     <div class="container">
+      <div class="upload-fill-layer" id="uploadFillLayer"></div>
       <div class="title">✈️ <span>osok</span></div>
 
       <div class="drop-zone" id="dropZone">

@@ -1168,7 +1168,6 @@ async function upload(body, name) {
     uploadResp = { result: false };
   } finally {
     await uploadFill.complete();
-    setUploadLocked(false);
   }
 
   if (!uploadResp.result) {
@@ -1177,12 +1176,14 @@ async function upload(body, name) {
     );
     msg.innerHTML = "";
     fileList.innerHTML = "";
+    setUploadLocked(false);
   } else {
     setStatus('<span class="status-ok">✅ 전송 완료!</span>');
     msg.innerHTML = "";
     setTimeout(() => {
       setStatus("");
       fileList.innerHTML = "";
+      setUploadLocked(false);
     }, 3000);
   }
 }

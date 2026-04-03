@@ -45,7 +45,7 @@
           transparent 30%
         ),
           linear-gradient(180deg, #090c1d 0%, #060816 52%, #04050d 100%);
-        overflow: hidden;
+        overflow-x: hidden;
         position: relative;
         color: var(--text);
       }
@@ -477,6 +477,12 @@
       }
 
       @media (max-width: 640px) {
+        body {
+          align-items: flex-start;
+          padding: 1.5rem 0;
+          overflow-y: auto;
+        }
+
         .container {
           padding: 1.5rem;
           gap: 1rem;

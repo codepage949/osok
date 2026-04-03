@@ -15,6 +15,8 @@ let isUploading = false;
 // 원본 `landing-main-particles-component`의 구조를 따라
 // position texture + ping-pong simulation + point render 셰이더로 재구성한다.
 (async function initAntigravityBackground() {
+  if (window.matchMedia("(max-width: 640px)").matches) return;
+
   const canvas = document.getElementById("bg-canvas");
   if (!canvas) return;
 

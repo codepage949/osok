@@ -8,20 +8,6 @@ export function createApp() {
   const app = new Hono();
   const ss = new Map<string, ((res: Response) => void) | null>();
 
-  if (Deno.env.get("DENO_ENV") === "production") {
-    app.use(async (c, next) => {
-      const protocol = c.req.header("X-Forwarded-Proto") || "http";
-
-      if (protocol === "http") {
-        const url = new URL(c.req.url);
-        url.protocol = "https:";
-        return c.redirect(url.toString());
-      }
-
-      await next();
-    });
-  }
-
   app.use(logger());
   app.use("*", cors());
   app.get("/new-session", (c) => {

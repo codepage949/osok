@@ -21,17 +21,6 @@ if (Deno.env.get("DENO_ENV") === "production") {
   });
 }
 app.use("*", cors());
-app.use(
-  "/static/*",
-  serveStatic({
-    root: "./public",
-    rewriteRequestPath: (path) => path.replace(/^\/static/, ""),
-  }),
-);
-app.get("/", async (c) => {
-  const html = await Deno.readTextFile("./public/index.html");
-  return c.html(html);
-});
 app.get("/new-session", (c) => {
   const key = (cryptoRandomString({ length: 8, type: "url-safe" }) as string)
     .toLowerCase();
@@ -43,25 +32,6 @@ app.get("/status", (c) => {
   const key = c.req.query("key");
 
   return c.json({ result: !!ss.get(key!) });
-});
-app.get("/:key", (c) => {
-  const key = c.req.param("key");
-
-  if (ss.has(key)) {
-    let resolve: (res: Response) => void;
-    const p = new Promise<Response>((r) => {
-      resolve = r;
-    });
-    ss.set(key, resolve!);
-    c.req.raw.signal.addEventListener("abort", () => {
-      if (ss.get(key) === resolve) {
-        ss.set(key, null);
-      }
-    }, { once: true });
-    return p;
-  } else {
-    return c.text("no matching key", 404);
-  }
 });
 app.post("/upload", async (c) => {
   const key = c.req.query("key");
@@ -111,5 +81,25 @@ app.post("/upload", async (c) => {
   }
 
   return c.json({ result });
+});
+app.use(serveStatic({ root: "./dist" }));
+app.get("/:key", (c) => {
+  const key = c.req.param("key");
+
+  if (ss.has(key)) {
+    let resolve: (res: Response) => void;
+    const p = new Promise<Response>((r) => {
+      resolve = r;
+    });
+    ss.set(key, resolve!);
+    c.req.raw.signal.addEventListener("abort", () => {
+      if (ss.get(key) === resolve) {
+        ss.set(key, null);
+      }
+    }, { once: true });
+    return p;
+  } else {
+    return c.text("no matching key", 404);
+  }
 });
 Deno.serve({ port }, app.fetch);

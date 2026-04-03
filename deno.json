@@ -1,10 +1,21 @@
 {
+  "nodeModulesDir": "auto",
   "tasks": {
-    "start": "deno run --allow-net --allow-read --allow-env main.ts",
-    "dev": "deno run --watch --allow-net --allow-read --allow-env main.ts"
+    "start": "deno run -A npm:vite build && deno run -A main.ts",
+    "dev": "deno run -A npm:vite"
   },
   "imports": {
     "@hono/hono": "jsr:@hono/hono@4.6.1",
-    "crypto-random-string": "npm:crypto-random-string@3.3.1"
+    "crypto-random-string": "npm:crypto-random-string@3.3.1",
+    "react": "npm:react@^18.3.1",
+    "react-dom": "npm:react-dom@^18.3.1",
+    "three": "npm:three@^0.161.0",
+    "fflate": "npm:fflate@^0.8.2",
+    "@vitejs/plugin-react": "npm:@vitejs/plugin-react@^4.3.1",
+    "@types/react": "npm:@types/react@^18.3.1",
+    "@types/react-dom": "npm:@types/react-dom@^18.3.1",
+    "@types/three": "npm:@types/three@^0.161.0",
+    "typescript": "npm:typescript@^5.5.3",
+    "vite": "npm:vite@^5.4.1"
   }
 }

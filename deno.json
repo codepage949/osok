@@ -2,8 +2,7 @@
   "nodeModulesDir": "auto",
   "tasks": {
     "start": "deno run -A npm:vite build && deno run -A main.ts",
-    "dev": "deno run -A npm:vite",
-    "build": "deno run -A npm:vite build"
+    "dev": "deno run -A npm:vite"
   },
   "imports": {
     "@hono/hono": "jsr:@hono/hono@4.6.1",

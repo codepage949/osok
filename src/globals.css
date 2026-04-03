@@ -310,15 +310,6 @@ body {
   filter: saturate(0.7);
 }
 
-.btn-text {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  box-shadow: 0 10px 30px rgba(255, 100, 133, 0.24);
-}
-
-.btn-text:hover {
-  box-shadow: 0 12px 34px rgba(255, 100, 133, 0.3);
-}
-
 .btn-upload {
   background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
   box-shadow: 0 10px 30px rgba(71, 215, 176, 0.22);
@@ -326,6 +317,16 @@ body {
 
 .btn-upload:hover {
   box-shadow: 0 12px 34px rgba(71, 215, 176, 0.28);
+}
+
+.text-compose {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 1rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(139, 162, 255, 0.14);
 }
 
 textarea {
@@ -340,7 +341,6 @@ textarea {
   font-family: inherit;
   font-size: 0.9rem;
   transition: border-color 0.2s;
-  display: none;
 }
 
 textarea::placeholder {
@@ -351,10 +351,6 @@ textarea:focus {
   outline: none;
   border-color: rgba(130, 151, 255, 0.46);
   background: rgba(255, 255, 255, 0.1);
-}
-
-textarea.visible {
-  display: block;
 }
 
 textarea:disabled {

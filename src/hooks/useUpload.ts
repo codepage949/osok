@@ -92,8 +92,9 @@ export function useUpload(fillLayerRef: React.RefObject<HTMLDivElement | null>) 
   const [statusHtml, setStatusHtml] = useState("");
   const [sessionKey, setSessionKey] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [textVisible, setTextVisible] = useState(false);
+  const [isBusy, setIsBusy] = useState(false);
   const isUploadingRef = useRef(false);
+  const isBusyRef = useRef(false);
   const fillRef = useRef<UploadFillController | null>(null);
 
   function getFill(): UploadFillController {
@@ -103,23 +104,42 @@ export function useUpload(fillLayerRef: React.RefObject<HTMLDivElement | null>) 
     return fillRef.current;
   }
 
-  function lock(locked: boolean) {
+  function lockUploading(locked: boolean) {
     isUploadingRef.current = locked;
     setIsUploading(locked);
   }
 
-  async function upload(body: File | Blob | string, name?: string) {
-    if (isUploadingRef.current) return;
+  function lockBusy(locked: boolean) {
+    isBusyRef.current = locked;
+    setIsBusy(locked);
+  }
+
+  async function upload(
+    body: File | Blob | string,
+    name?: string,
+    alreadyBusy = false,
+  ) {
+    if (isBusyRef.current && !alreadyBusy) return;
+    if (!alreadyBusy) lockBusy(true);
     const isTxt = typeof body === "string";
 
     if (isTxt) setFiles([]);
     setSessionKey(null);
     setStatusHtml(STATUS.CREATING_SESSION);
 
-    const resp = (await (await fetch("/new-session")).json()) as {
-      result: string;
-    };
-    const key = resp.result;
+    let key: string;
+    try {
+      const resp = (await (await fetch("/new-session")).json()) as {
+        result: string;
+      };
+      key = resp.result;
+    } catch {
+      setStatusHtml(STATUS.ERROR_UPLOAD);
+      setSessionKey(null);
+      setFiles([]);
+      lockBusy(false);
+      return;
+    }
 
     if (name === undefined) name = `${key}.txt`;
 
@@ -132,10 +152,11 @@ export function useUpload(fillLayerRef: React.RefObject<HTMLDivElement | null>) 
       setStatusHtml(STATUS.ERROR_TIMEOUT);
       setSessionKey(null);
       setFiles([]);
+      lockBusy(false);
       return;
     }
 
-    lock(true);
+    lockUploading(true);
     setStatusHtml(STATUS.UPLOADING);
 
     const fill = getFill();
@@ -158,20 +179,23 @@ export function useUpload(fillLayerRef: React.RefObject<HTMLDivElement | null>) 
       setStatusHtml(STATUS.ERROR_UPLOAD);
       setSessionKey(null);
       setFiles([]);
-      lock(false);
+      lockUploading(false);
+      lockBusy(false);
     } else {
       setStatusHtml(STATUS.SUCCESS);
       setSessionKey(null);
       setTimeout(() => {
         setStatusHtml("");
         setFiles([]);
-        lock(false);
+        lockUploading(false);
+        lockBusy(false);
       }, 3000);
     }
   }
 
   async function handleFilesReady(rawFiles: File[]) {
-    if (isUploadingRef.current) return;
+    if (isBusyRef.current) return;
+    lockBusy(true);
     let body: File | Blob;
     let name: string;
 
@@ -185,11 +209,12 @@ export function useUpload(fillLayerRef: React.RefObject<HTMLDivElement | null>) 
         name = "files.zip";
       } catch {
         setStatusHtml(STATUS.ERROR_ZIP);
+        lockBusy(false);
         return;
       }
     }
 
-    await upload(body, name);
+    await upload(body, name, true);
   }
 
   return {
@@ -199,8 +224,7 @@ export function useUpload(fillLayerRef: React.RefObject<HTMLDivElement | null>) 
     statusHtml,
     sessionKey,
     isUploading,
-    textVisible,
-    setTextVisible,
+    isBusy,
     upload,
     handleFilesReady,
     formatSize,

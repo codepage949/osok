@@ -8,28 +8,27 @@ export default function App() {
   const textInputRef = useRef<HTMLTextAreaElement>(null);
   const [dragging, setDragging] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const [textDraft, setTextDraft] = useState("");
 
   const {
     files,
     setFiles,
     statusHtml,
     sessionKey,
-    isUploading,
-    textVisible,
-    setTextVisible,
+    isBusy,
     upload,
     handleFilesReady,
     formatSize,
   } = useUpload(fillLayerRef);
 
   function onDropZoneClick() {
-    if (isUploading) return;
+    if (isBusy) return;
     uploaderRef.current?.click();
   }
 
   function onDragOver(e: React.DragEvent) {
     e.preventDefault();
-    if (isUploading) return;
+    if (isBusy) return;
     setDragging(true);
   }
 
@@ -40,7 +39,7 @@ export default function App() {
   function onDrop(e: React.DragEvent) {
     e.preventDefault();
     setDragging(false);
-    if (isUploading) return;
+    if (isBusy) return;
     const dropped = Array.from(e.dataTransfer.files);
     if (dropped.length > 0) {
       setFiles(dropped);
@@ -49,7 +48,7 @@ export default function App() {
   }
 
   function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    if (isUploading) {
+    if (isBusy) {
       e.target.value = "";
       return;
     }
@@ -61,23 +60,19 @@ export default function App() {
     e.target.value = "";
   }
 
-  function onBtnFileClick() {
-    if (isUploading) return;
-    uploaderRef.current?.click();
-  }
-
   useEffect(() => {
-    if (textVisible) textInputRef.current?.focus();
-  }, [textVisible]);
+    textInputRef.current?.focus();
+  }, []);
 
-  function onBtnTextClick() {
-    if (isUploading) return;
-    const text = textInputRef.current?.value.trim() ?? "";
-    if (textVisible && text) {
-      upload(text);
-    } else {
-      setTextVisible(!textVisible);
+  function onTextSubmitClick() {
+    if (isBusy) return;
+    const text = textDraft.trim();
+    if (!text) {
+      textInputRef.current?.focus();
+      return;
     }
+    setTextDraft("");
+    upload(text);
   }
 
   function copyKey() {
@@ -99,7 +94,7 @@ export default function App() {
         </div>
 
         <div
-          className={`drop-zone${isUploading ? " disabled" : ""}${dragging ? " dragging" : ""}`}
+          className={`drop-zone${isBusy ? " disabled" : ""}${dragging ? " dragging" : ""}`}
           onClick={onDropZoneClick}
           onDragOver={onDragOver}
           onDragLeave={onDragLeave}
@@ -136,26 +131,23 @@ export default function App() {
           )}
         </div>
 
-        <textarea
-          ref={textInputRef}
-          className={textVisible ? "visible" : ""}
-          placeholder="텍스트를 입력하세요..."
-          disabled={isUploading}
-        />
-
-        <div className="btn-group">
-          <a
-            className={`btn${isUploading ? " disabled" : ""}`}
-            onClick={onBtnFileClick}
-          >
-            📎 파일
-          </a>
-          <a
-            className={`btn btn-text${isUploading ? " disabled" : ""}`}
-            onClick={onBtnTextClick}
-          >
-            📝 텍스트
-          </a>
+        <div className="text-compose">
+          <textarea
+            ref={textInputRef}
+            value={textDraft}
+            placeholder="텍스트를 입력하세요..."
+            disabled={isBusy}
+            onChange={(e) => setTextDraft(e.target.value)}
+          />
+          <div className="btn-group">
+            <button
+              type="button"
+              className={`btn btn-upload${isBusy || !textDraft.trim() ? " disabled" : ""}`}
+              onClick={onTextSubmitClick}
+            >
+              📝 텍스트 전송
+            </button>
+          </div>
         </div>
 
         <div

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import BgScene from "./BgScene";
 import { useUpload } from "./hooks/useUpload";
 
@@ -66,6 +66,10 @@ export default function App() {
     uploaderRef.current?.click();
   }
 
+  useEffect(() => {
+    if (textVisible) textInputRef.current?.focus();
+  }, [textVisible]);
+
   function onBtnTextClick() {
     if (isUploading) return;
     const text = textInputRef.current?.value.trim() ?? "";
@@ -73,9 +77,6 @@ export default function App() {
       upload(text);
     } else {
       setTextVisible(!textVisible);
-      if (!textVisible) {
-        setTimeout(() => textInputRef.current?.focus(), 0);
-      }
     }
   }
 

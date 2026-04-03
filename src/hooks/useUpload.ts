@@ -11,6 +11,22 @@ function formatSize(bytes: number) {
   return (bytes / 1024 / 1024).toFixed(1) + " MB";
 }
 
+const STATUS = {
+  CREATING_SESSION:
+    '<span class="status-uploading"><span class="spinner"></span> 세션 생성 중...</span>',
+  WAITING_CLIENT: "수신자가 연결되기를 기다리는 중...",
+  UPLOADING:
+    '<span class="status-uploading"><span class="spinner"></span> 업로드 중...</span>',
+  ZIPPING:
+    '<span class="status-uploading"><span class="spinner"></span> ZIP 압축 중...</span>',
+  SUCCESS: '<span class="status-ok">✅ 전송 완료!</span>',
+  ERROR_UPLOAD:
+    '<span class="status-err">❌ 연결이 끊겼거나 업로드에 실패했습니다</span>',
+  ERROR_TIMEOUT:
+    '<span class="status-err">❌ 수신자가 응답하지 않아 시간 초과되었습니다</span>',
+  ERROR_ZIP: '<span class="status-err">ZIP 압축 실패</span>',
+};
+
 function uploadWithProgress(
   url: string,
   body: File | Blob | string,
@@ -43,13 +59,22 @@ function uploadWithProgress(
   });
 }
 
+const POLL_TIMEOUT_MS = 30_000;
+
 async function waitForClient(key: string) {
-  await new Promise<void>((ok) => {
+  await new Promise<void>((ok, fail) => {
+    const timer = setTimeout(
+      () => fail(new Error("timeout")),
+      POLL_TIMEOUT_MS,
+    );
     const lp = async () => {
-      const resp = await (await fetch(`/status?key=${key}`)).json() as { result: boolean };
+      const resp = (await (await fetch(`/status?key=${key}`)).json()) as {
+        result: boolean;
+      };
       if (!resp.result) {
         setTimeout(lp, 300);
       } else {
+        clearTimeout(timer);
         ok();
       }
     };
@@ -89,24 +114,29 @@ export function useUpload(fillLayerRef: React.RefObject<HTMLDivElement | null>) 
 
     if (isTxt) setFiles([]);
     setSessionKey(null);
-    setStatusHtml(
-      '<span class="status-uploading"><span class="spinner"></span> 세션 생성 중...</span>',
-    );
+    setStatusHtml(STATUS.CREATING_SESSION);
 
-    const resp = await (await fetch("/new-session")).json() as { result: string };
+    const resp = (await (await fetch("/new-session")).json()) as {
+      result: string;
+    };
     const key = resp.result;
 
     if (name === undefined) name = `${key}.txt`;
 
     setSessionKey(key);
-    setStatusHtml("수신자가 연결되기를 기다리는 중...");
+    setStatusHtml(STATUS.WAITING_CLIENT);
 
-    await waitForClient(key);
+    try {
+      await waitForClient(key);
+    } catch {
+      setStatusHtml(STATUS.ERROR_TIMEOUT);
+      setSessionKey(null);
+      setFiles([]);
+      return;
+    }
 
     lock(true);
-    setStatusHtml(
-      '<span class="status-uploading"><span class="spinner"></span> 업로드 중...</span>',
-    );
+    setStatusHtml(STATUS.UPLOADING);
 
     const fill = getFill();
     fill.start();
@@ -125,14 +155,12 @@ export function useUpload(fillLayerRef: React.RefObject<HTMLDivElement | null>) 
     }
 
     if (!uploadResp!.result) {
-      setStatusHtml(
-        '<span class="status-err">❌ 연결이 끊겼거나 업로드에 실패했습니다</span>',
-      );
+      setStatusHtml(STATUS.ERROR_UPLOAD);
       setSessionKey(null);
       setFiles([]);
       lock(false);
     } else {
-      setStatusHtml('<span class="status-ok">✅ 전송 완료!</span>');
+      setStatusHtml(STATUS.SUCCESS);
       setSessionKey(null);
       setTimeout(() => {
         setStatusHtml("");
@@ -151,23 +179,17 @@ export function useUpload(fillLayerRef: React.RefObject<HTMLDivElement | null>) 
       body = rawFiles[0]!;
       name = rawFiles[0]!.name;
     } else {
-      setStatusHtml(
-        '<span class="status-uploading"><span class="spinner"></span> ZIP 압축 중...</span>',
-      );
+      setStatusHtml(STATUS.ZIPPING);
       try {
         body = await createZip(rawFiles);
         name = "files.zip";
       } catch {
-        setStatusHtml('<span class="status-err">ZIP 압축 실패</span>');
+        setStatusHtml(STATUS.ERROR_ZIP);
         return;
       }
     }
 
     await upload(body, name);
-  }
-
-  function formatSize_(bytes: number) {
-    return formatSize(bytes);
   }
 
   return {
@@ -181,6 +203,6 @@ export function useUpload(fillLayerRef: React.RefObject<HTMLDivElement | null>) 
     setTextVisible,
     upload,
     handleFilesReady,
-    formatSize: formatSize_,
+    formatSize,
   };
 }

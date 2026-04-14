@@ -59,7 +59,7 @@ function uploadWithProgress(
   });
 }
 
-const POLL_TIMEOUT_MS = 30_000;
+const POLL_TIMEOUT_MS = 120_000;
 
 async function waitForClient(key: string) {
   await new Promise<void>((ok, fail) => {

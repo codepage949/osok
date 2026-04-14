@@ -155,7 +155,20 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
+  height: 180px;
+  overflow: hidden;
+}
+
+.drop-zone .file-list {
+  width: 100%;
+  flex: 1;
+  align-self: stretch;
+  max-height: 100%;
+  overflow-y: auto;
+  margin: 0;
+  text-align: left;
 }
 
 .drop-zone:hover {
@@ -361,7 +374,7 @@ textarea:disabled {
 /* 세션 키 표시 */
 #msg {
   text-align: center;
-  min-height: 3rem;
+  height: 4.5rem;
   display: flex;
   align-items: center;
   justify-content: center;

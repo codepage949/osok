@@ -101,22 +101,24 @@ export default function App() {
           onDragLeave={onDragLeave}
           onDrop={onDrop}
         >
-          <div className="drop-icon">📂</div>
-          <div>파일을 여기에 드래그하거나 클릭하세요</div>
-          <div className="drop-hint">여러 파일 선택 시 ZIP으로 자동 압축</div>
+          {files.length === 0 ? (
+            <>
+              <div className="drop-icon">📂</div>
+              <div>파일을 여기에 드래그하거나 클릭하세요</div>
+              <div className="drop-hint">여러 파일 선택 시 ZIP으로 자동 압축</div>
+            </>
+          ) : (
+            <div className="file-list">
+              {files.map((f, i) => (
+                <div key={i} className="file-item">
+                  <span className="file-icon">📄</span>
+                  <span className="file-name">{f.name}</span>
+                  <span className="file-size">{formatSize(f.size)}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-
-        {files.length > 0 && (
-          <div className="file-list">
-            {files.map((f, i) => (
-              <div key={i} className="file-item">
-                <span className="file-icon">📄</span>
-                <span className="file-name">{f.name}</span>
-                <span className="file-size">{formatSize(f.size)}</span>
-              </div>
-            ))}
-          </div>
-        )}
 
         <div id="msg" style={{ position: "relative" }}>
           {sessionKey && (

@@ -377,6 +377,9 @@ textarea:disabled {
   cursor: pointer;
   user-select: none;
   transition: transform 0.15s ease;
+  text-decoration: underline;
+  text-decoration-color: rgba(107, 140, 255, 0.55);
+  text-underline-offset: 6px;
 }
 
 .session-key:hover {

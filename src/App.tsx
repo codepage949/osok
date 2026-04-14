@@ -77,7 +77,8 @@ export default function App() {
 
   function copyKey() {
     if (!sessionKey) return;
-    navigator.clipboard.writeText(sessionKey).then(() => {
+    const url = `${window.location.origin}/${sessionKey}`;
+    navigator.clipboard.writeText(url).then(() => {
       setShowToast(true);
       setTimeout(() => setShowToast(false), 1500);
     });

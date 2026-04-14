@@ -91,7 +91,7 @@ export default function App() {
         <div ref={fillLayerRef} className="upload-fill-layer" />
 
         <div className="title">
-          ✈️ <span>osok</span>
+          <span>osok</span>
         </div>
 
         <div
@@ -101,22 +101,33 @@ export default function App() {
           onDragLeave={onDragLeave}
           onDrop={onDrop}
         >
-          {files.length === 0 ? (
-            <>
-              <div className="drop-icon">📂</div>
-              <div>파일을 여기에 드래그하거나 클릭하세요</div>
-              <div className="drop-hint">여러 파일 선택 시 ZIP으로 자동 압축</div>
-            </>
-          ) : (
+          {files.length > 0 ? (
             <div className="file-list">
               {files.map((f, i) => (
                 <div key={i} className="file-item">
-                  <span className="file-icon">📄</span>
+                  <span className="file-icon">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                      <polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                  </span>
                   <span className="file-name">{f.name}</span>
                   <span className="file-size">{formatSize(f.size)}</span>
                 </div>
               ))}
             </div>
+          ) : (
+            <>
+              <div className="drop-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="17 8 12 3 7 8"/>
+                  <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+              </div>
+              <div>파일을 드래그하거나 클릭해 선택</div>
+              <div className="drop-hint">여러 파일 선택 시 ZIP으로 자동 압축</div>
+            </>
           )}
         </div>
 
@@ -129,9 +140,9 @@ export default function App() {
               onClick={copyKey}
             >
               {sessionKey}
-              {showToast && <div className="copy-toast">복사됨!</div>}
             </div>
           )}
+          {showToast && <div className="copy-toast">복사됨!</div>}
         </div>
 
         <div className="text-compose">
@@ -148,7 +159,11 @@ export default function App() {
               className={`btn btn-upload${isBusy || !textDraft.trim() ? " disabled" : ""}`}
               onClick={onTextSubmitClick}
             >
-              📝 텍스트 전송
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"/>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
+              전송
             </button>
           </div>
         </div>

@@ -24,7 +24,8 @@ export function initBackground(canvas: HTMLCanvasElement): () => void {
   renderer.setClearColor(0x060816, 0);
   renderer.autoClear = false;
 
-  const clock = new THREE.Clock(false);
+  const clock = new THREE.Timer();
+  clock.connect(document);
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
   const intersectionPoint = new THREE.Vector3();
@@ -388,9 +389,10 @@ export function initBackground(canvas: HTMLCanvasElement): () => void {
     }
   }
 
-  function renderFrame() {
+  function renderFrame(timestamp?: number) {
     animationFrameId = requestAnimationFrame(renderFrame);
 
+    clock.update(timestamp);
     const dt = clock.getDelta();
     elapsedTime += dt;
 
@@ -446,11 +448,11 @@ export function initBackground(canvas: HTMLCanvasElement): () => void {
   document.addEventListener("mouseleave", onPointerLeave);
 
   resize();
-  clock.start();
   renderFrame();
 
   return () => {
     if (animationFrameId !== null) cancelAnimationFrame(animationFrameId);
+    clock.dispose();
     window.removeEventListener("resize", resize);
     document.removeEventListener("mousemove", onPointerMove);
     document.removeEventListener("mouseleave", onPointerLeave);

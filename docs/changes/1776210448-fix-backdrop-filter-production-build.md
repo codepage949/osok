@@ -1,4 +1,4 @@
-# 프로덕션 빌드에서 backdrop-filter 누락 버그 수정
+# backdrop-filter 프로덕션 누락 및 WebGL 캔버스 파티클 가시성 수정
 
 ## 증상
 
@@ -24,3 +24,30 @@ LightningCSS는 해당 타깃에서 불필요한 webkit 접두사를 자동 제�
 
 ### `src/globals.css`
 LightningCSS가 vendor prefix를 자동 관리하므로 소스에서 `-webkit-backdrop-filter` 중복 선언 제거.
+
+---
+
+## WebGL 캔버스가 backdrop-filter에 샘플링되지 않는 문제
+
+### 증상
+
+파티클 애니메이션이 컨테이너 바깥에서는 보이지만, 컨테이너 안(backdrop-filter 영역)에서는 완전히 보이지 않음.
+불투명도를 0.68 → 0.30으로 낮춰도 차이가 없었음.
+
+### 원인
+
+Three.js 렌더러의 `preserveDrawingBuffer: true` 옵션이 Chrome의 WebGL 합성 경로를 변경해,
+CSS `backdrop-filter`가 캔버스 픽셀을 읽지 못하게 막는다.
+
+`autoClear = false` + 명시적 `renderer.clear()` 조합으로 이미 버퍼를 직접 제어하고 있어
+`preserveDrawingBuffer`가 불필요했다.
+
+### 수정
+
+### `src/lib/background/index.ts`
+`preserveDrawingBuffer: true` 제거 → Chrome이 WebGL 캔버스를 직접 합성 레이어로 처리,
+backdrop-filter가 파티클 픽셀을 정상 샘플링.
+
+### `src/globals.css`
+- `backdrop-filter: blur` 22px → 7px: 파티클이 과도하게 뭉개지지 않도록
+- `--surface` opacity 0.68 → 0.28: 72% 투명하게 열어 파티클 색상이 컨테이너를 통해 보이도록

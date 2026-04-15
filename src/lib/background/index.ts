@@ -18,7 +18,6 @@ export function initBackground(canvas: HTMLCanvasElement): () => void {
     antialias: true,
     alpha: true,
     powerPreference: "high-performance",
-    preserveDrawingBuffer: true,
     stencil: false,
     precision: "highp",
   });

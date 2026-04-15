@@ -10,7 +10,7 @@
 
 :root {
   --bg: #060816;
-  --surface: rgba(14, 18, 37, 0.68);
+  --surface: rgba(14, 18, 37, 0.28);
   --surface-strong: rgba(22, 28, 53, 0.86);
   --outline: rgba(139, 162, 255, 0.18);
   --text: #edf2ff;
@@ -65,7 +65,7 @@ body {
   position: relative;
   z-index: 1;
   background: var(--surface);
-  backdrop-filter: blur(22px);
+  backdrop-filter: blur(7px);
   border: 1px solid var(--outline);
   padding: 2.5rem;
   border-radius: 24px;
